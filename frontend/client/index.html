@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <title>
+            Test Flask App
+        </title>
+
+        <style>
+            #heatmapContainer { width:100%; height:100%;}
+          </style>
+    </head>
+
+    <body>
+        <h1>Test HTML Page</h1>
+        <h2>Passed directly from python: {{content}}</h2>
+        <p>Something something lorem ipsum</p>
+
+        <button id="demo">Click Me!</button> 
+
+        <div id="heatmapContainer">
+            
+        </div>
+
+        <!-- In-file JS scripting -->
+        <script src="{{ url_for('static', filename='node_modules/heatmap.js/build/heatmap.js')}}"></script>
+        <script>
+            document.getElementById("demo").addEventListener("click", myFunction);
+            
+            function myFunction() {
+              document.getElementById("demo").innerHTML = "Passed from python: {{content}}";
+            }
+
+            HC = document.getElementById("heatmapContainer")
+
+            // minimal heatmap instance configuration
+            var heatmapInstance = h337.create({
+                // only container is required, the rest will be defaults
+                container: HC,
+                maxOpacity: .6,
+                radius: 50,
+                blur: 0.5,
+                // backgroundColor with alpha so you can see through it
+                backgroundColor: 'rgba(0, 0, 58, 0.96)'
+            });
+
+            // now generate some random data
+            var points = [];
+            var max = 100;
+            var width = HC.offsetWidth;
+            var height = HC.offsetHeight;
+            var len = 1000;
+
+            while (len--) {
+                var val = Math.floor(Math.random()*100);
+                var point = {
+                    x: Math.floor(Math.random()*width),
+                    y: Math.floor(Math.random()*height),
+                    value: val
+                };
+                points.push(point);
+            }
+
+            // heatmap data format
+            var data = {
+                max: max,
+                min: 0,
+                data: points
+            };
+
+            // if you have a set of datapoints always use setData instead of addData
+            // for data initialization
+            heatmapInstance.setData(data);
+        </script>
+
+    </body>
+</html>
