@@ -14,20 +14,33 @@
         <h2>Passed directly from python: {{content}}</h2>
         <p>Something something lorem ipsum</p>
 
-        <button id="demo">Click Me!</button> 
+        <button id='demo'>Click Me!</button>
 
         <div id="heatmapContainer">
             
         </div>
 
         <!-- In-file JS scripting -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="{{ url_for('static', filename='node_modules/heatmap.js/build/heatmap.js')}}"></script>
         <script>
-            document.getElementById("demo").addEventListener("click", myFunction);
-            
-            function myFunction() {
-              document.getElementById("demo").innerHTML = "Passed from python: {{content}}";
-            }
+
+            document.getElementById("demo").addEventListener("click", function()
+            {
+                // Send an AJAX request to get data
+                $.ajax({
+                    type : "POST",
+                    // Route path
+                    url : '/example_req',
+                    dataType: "json",
+                    //data: JSON.stringify('you can put in a variable in here to send data with the request'),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (data) {
+                        // Here is where you can operate on the data
+                        console.log(data)
+                    }
+                });
+            });
 
             HC = document.getElementById("heatmapContainer")
 
@@ -37,7 +50,7 @@
                 container: HC,
                 maxOpacity: .6,
                 radius: 50,
-                blur: 0.5,
+                blur: 0.1,
                 // backgroundColor with alpha so you can see through it
                 backgroundColor: 'rgba(0, 0, 58, 0.96)'
             });
