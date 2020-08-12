@@ -5,8 +5,12 @@
         </title>
 
         <style>
+            #heatmapContainerWrapper { width:50%; height:50%; position:absolute; background:rgba(0,0,0,.1); }
             #heatmapContainer { width:100%; height:100%;}
-          </style>
+            #heatmapLegend { background:white; position:absolute; bottom:0; right:0; padding:10px; }
+            #min { float:left; }
+            #max { float:right; }
+        </style>
     </head>
 
     <body>
@@ -16,8 +20,18 @@
 
         <button id='demo'>Click Me!</button>
 
-        <div id="heatmapContainer">
-            
+        <div id="heatmapContainerWrapper">
+            <!--Heatmap-->
+            <div id="heatmapContainer">
+      
+            </div>
+            <!--Legend on heatmap-->
+            <div id="heatmapLegend">
+                <h2>COVID-19 Cases</h2>
+                <span id="min"></span>
+                <span id="max"></span>
+                <img id="gradient" src="" style="width:100%" />
+            </div>
         </div>
 
         <!-- In-file JS scripting -->
@@ -25,41 +39,52 @@
         <script src="{{ url_for('static', filename='node_modules/heatmap.js/build/heatmap.js')}}"></script>
         <script>
 
-            document.getElementById("demo").addEventListener("click", function()
-            {
-                // Send an AJAX request to get data
-                $.ajax({
-                    type : "POST",
-                    // Route path
-                    url : '/example_req',
-                    dataType: "json",
-                    //data: JSON.stringify('you can put in a variable in here to send data with the request'),
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (data) {
-                        // Here is where you can operate on the data
-                        console.log(data)
-                    }
-                });
-            });
+            // HEATMAP INIT
 
-            HC = document.getElementById("heatmapContainer")
+            // Get all heatmap form vals
+            hm_cont = document.getElementById("heatmapContainer");
 
             // minimal heatmap instance configuration
             var heatmapInstance = h337.create({
                 // only container is required, the rest will be defaults
-                container: HC,
+                container: hm_cont,
                 maxOpacity: .6,
                 radius: 50,
                 blur: 0.1,
                 // backgroundColor with alpha so you can see through it
-                backgroundColor: 'rgba(0, 0, 58, 0.96)'
+                backgroundColor: 'rgba(0, 0, 58, 0.96)',
+                // update the legend whenever there's an extrema change
+                onExtremaChange: function onExtremaChange(data) {
+                    HM_UpdateLegend(data);
+                }
             });
 
+            // Get a basic var for the heatmap data
+            var hm_data = {
+                max: 1,
+                min: 0,
+                data: []
+            };
+
+            var hm_width = hm_cont.offsetWidth;
+            var hm_height = hm_cont.offsetHeight;
+
+            // Declare some basic values for the legend as well, including gradiant config
+            var legendCanvas = document.createElement('canvas');
+            legendCanvas.width = 100;
+            legendCanvas.height = 10;
+
+            var legendCtx = legendCanvas.getContext('2d');
+            var gradientCfg = {};
+
+            // Get data from python and update the heatmap
+            HM_GetData();
+
+
+            /*
             // now generate some random data
             var points = [];
             var max = 100;
-            var width = HC.offsetWidth;
-            var height = HC.offsetHeight;
             var len = 1000;
 
             while (len--) {
@@ -71,17 +96,82 @@
                 };
                 points.push(point);
             }
-
-            // heatmap data format
-            var data = {
-                max: max,
-                min: 0,
-                data: points
-            };
+            */
 
             // if you have a set of datapoints always use setData instead of addData
             // for data initialization
-            heatmapInstance.setData(data);
+            //HM_UpdateData([])          
+
+
+            // Function on button press to get data from python
+            function HM_GetData()
+            {
+                // Send an AJAX request to get loaded data data
+                $.ajax({
+                    type : "POST",
+                    // Route path
+                    url : "/casedata",
+                    dataType: "json",
+                    //data: JSON.stringify('you can put in a variable in here to send data with the request'),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (points) {
+                        // Plot the data on the heatmap and refresh it
+
+                        for (i = 0; i < points.length; i++)
+                        {
+                            points[i].x = Math.floor((points[i].x / 100) * hm_width);
+                            points[i].y = Math.floor((points[i].y / 100) * hm_height);
+                        };
+
+                        // Update and display new vals
+                        HM_UpdateData(points);
+                    }
+                });
+            
+            };
+
+            function HM_UpdateData(data)
+            {
+                // With the given list of points, update the max and data vals
+                hm_data.max = Math.max.apply(Math, data.map(function(o) { return o.value; }))
+                hm_data.data = data
+
+                heatmapInstance.setData(hm_data);
+            };
+
+            function HM_UpdateLegend(data)
+            {
+                // the onExtremaChange callback gives us min, max, and the gradientConfig
+                // so we can update the legend
+                EID('min').innerHTML = data.min;
+                EID('max').innerHTML = data.max;
+                // regenerate gradient image
+                if (data.gradient != gradientCfg) {
+                    gradientCfg = data.gradient;
+                    var gradient = legendCtx.createLinearGradient(0, 0, 100, 1);
+                    for (var key in gradientCfg) {
+                    gradient.addColorStop(key, gradientCfg[key]);
+                    }
+
+                    legendCtx.fillStyle = gradient;
+                    legendCtx.fillRect(0, 0, 100, 10);
+                    EID('gradient').src = legendCanvas.toDataURL();
+                }
+            }
+
+
+
+            // PAGE EVENTS / UTIL
+
+            // Shorthand for get element by id
+            function EID(id)
+            {
+                return document.getElementById(id);
+            };
+
+            // Press button should refresh data
+            document.getElementById("demo").addEventListener("click", function(){HM_GetData()});
+
         </script>
 
     </body>
