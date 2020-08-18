@@ -41,13 +41,14 @@ def getCaseData():
 
             data.append(val)
 
-        return jsonify(data)
+        return jsonify(process_csv(save_location))
+        #return jsonify(data)
     else:
         return None
 
 
 # Save location for csv file
-save_location = os.getcwd() + "/conposcovidloc.csv"
+save_location = os.path.join(os.getcwd(), "conposcovidloc.csv")
 
 
 def process_csv(save_location):
@@ -68,11 +69,19 @@ def process_csv(save_location):
 
     # Convert to dict containing dates and list of tuples containing location and case counts
     complete_arr = {}
+
     for i, v in enumerate(unique_elements):
+        # Make an obj to store in the dict
+        val = {
+            "x": float(v[2]),
+            "y": float(v[1]),
+            "value": int(counts_elements[i]),
+        }
+
         if v[0] in complete_arr:
-            complete_arr[v[0]].append((v[1], v[2], counts_elements[i]))
+            complete_arr[v[0]].append(val)
         else:
-            complete_arr[v[0]] = [(v[1], v[2], counts_elements[i])]
+            complete_arr[v[0]] = [val]
 
     return complete_arr
 

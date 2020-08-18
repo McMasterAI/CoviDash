@@ -5,11 +5,55 @@
         </title>
 
         <style>
-            #heatmapContainerWrapper { width:50%; height:50%; position:absolute; background:rgba(0,0,0,.1); }
-            #heatmapContainer { width:100%; height:100%;}
-            #heatmapLegend { background:white; position:absolute; bottom:0; right:0; padding:10px; }
+            #heatmapContainerWrapper { 
+                width:50%; 
+                height:50%; 
+                position:absolute; 
+            }
+            #heatmapContainer { width:100%; height: 90%; background-image: url(/js/ontario.png); background-size: 100% 100%;}
+            #heatmapLegend { background:white; position:absolute; top:0; right:0; padding:10px; }
+            #heatmapTooltip {display:none; position: absolute;}
             #min { float:left; }
             #max { float:right; }
+
+            .slidecontainer {
+            width: 100%; /* Width of the outside container */
+            }
+
+            /* The slider itself */
+            .slider {
+            -webkit-appearance: none;  /* Override default CSS styles */
+            appearance: none;
+            width: 100%; /* Full-width */
+            height: 25px; /* Specified height */
+            background: #d3d3d3; /* Grey background */
+            outline: none; /* Remove outline */
+            opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+            }
+
+            /* Mouse-over effects */
+            .slider:hover {
+            opacity: 1; /* Fully shown on mouse-over */
+            }
+
+            /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+            .slider::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 25px; /* Set a specific slider handle width */
+            height: 25px; /* Slider handle height */
+            background: #4CAF50; /* Green background */
+            cursor: pointer; /* Cursor on hover */
+            }
+
+            .slider::-moz-range-thumb {
+            width: 25px; /* Set a specific slider handle width */
+            height: 25px; /* Slider handle height */
+            background: #4CAF50; /* Green background */
+            cursor: pointer; /* Cursor on hover */
+            }
         </style>
     </head>
 
@@ -20,6 +64,7 @@
 
         <button id='demo'>Click Me!</button>
 
+        <!-- Heatmap Div -->
         <div id="heatmapContainerWrapper">
             <!--Heatmap-->
             <div id="heatmapContainer">
@@ -32,7 +77,15 @@
                 <span id="max"></span>
                 <img id="gradient" src="" style="width:100%" />
             </div>
+
+            <!--Date Slider-->
+            <div class="slidecontainer">
+                <input type="range" min="1" max="7" value="3" class="slider" id="heatmapRange">
+            </div>
         </div>
+
+        <!-- Heatmap Tooltip -->
+        <span id="heatmapTooltip">Tooltip</span>
 
         <!-- In-file JS scripting -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -42,7 +95,9 @@
             // HEATMAP INIT
 
             // Get all heatmap form vals
-            hm_cont = document.getElementById("heatmapContainer");
+            var hm_cont = EID("heatmapContainer");
+            var hm_tooltip = EID("heatmapTooltip");
+            var hm_range = EID("heatmapRange");
 
             // minimal heatmap instance configuration
             var heatmapInstance = h337.create({
@@ -52,7 +107,7 @@
                 radius: 50,
                 blur: 0.1,
                 // backgroundColor with alpha so you can see through it
-                backgroundColor: 'rgba(0, 0, 58, 0.96)',
+                backgroundColor: 'rgba(0, 0, 58, 0.00)',
                 // update the legend whenever there's an extrema change
                 onExtremaChange: function onExtremaChange(data) {
                     HM_UpdateLegend(data);
@@ -79,7 +134,6 @@
 
             // Get data from python and update the heatmap
             HM_GetData();
-
 
             /*
             // now generate some random data
@@ -114,14 +168,45 @@
                     dataType: "json",
                     //data: JSON.stringify('you can put in a variable in here to send data with the request'),
                     contentType: 'application/json;charset=UTF-8',
-                    success: function (points) {
-                        // Plot the data on the heatmap and refresh it
+                    success: function (allpoints) {
 
+                        // Use a date like 2020-03-31 for testing because it has max number of vals (30)
+                        
+                        console.log(allpoints["2020-03-31"])
+                        var points = allpoints["2020-03-31"]
+                        
+                        //var points = allpoints
+                        //console.log(allpoints)
+                        
+                        // Plot the data on the heatmap and refresh it
+                        
+
+                        /*
+                            Need to adjust for longitude/latitude, equation will be as follows
+                            x = ((x - min_x) / diff_x) * width
+                            min_y = 42.3087965
+                            max_y = 48.47251
+                            diff_y = 6.1637135
+                            min_x = -84.3148358
+                            max_x = -74.73629779
+                            diff_x = 9.57853801
+
+                        */
+
+                        var min_y = 41
+                        var min_x = -85
+                        var diff_y = 6
+                        var diff_x = 11
+
+                        
                         for (i = 0; i < points.length; i++)
                         {
-                            points[i].x = Math.floor((points[i].x / 100) * hm_width);
-                            points[i].y = Math.floor((points[i].y / 100) * hm_height);
+                            points[i].x = Math.floor(((points[i].x - min_x) / diff_x) * hm_width);
+                            points[i].y = Math.floor(((points[i].y - min_y) / diff_y) * hm_height);
                         };
+                        
+
+                        //console.log(points)
 
                         // Update and display new vals
                         HM_UpdateData(points);
@@ -159,7 +244,19 @@
                 }
             }
 
+            // Function to update tooltip value and position
+            function HM_UpdateTooltip(x, y, value)
+            {
+                // + 15 for distance to cursor
+                var translation = 'translate(' + (x + 15) + 'px, ' + (y + 15) + 'px)';
+                hm_tooltip.style.webkitTransform = translation;
+                hm_tooltip.innerHTML = value;
+            }
 
+            // Function to change data used based on slidebar pos
+            hm_range.oninput = function() {
+                console.log(this.value)
+            }             
 
             // PAGE EVENTS / UTIL
 
@@ -171,6 +268,29 @@
 
             // Press button should refresh data
             document.getElementById("demo").addEventListener("click", function(){HM_GetData()});
+
+            // When mousing over the container
+            hm_cont.onmousemove = function(ev)
+            {
+                var x = ev.layerX;
+                var y = ev.layerY;
+                // Get value from heatmap pos
+                var value = heatmapInstance.getValueAt({
+                    x: x,
+                    y: y
+                });
+
+                hm_tooltip.style.display = 'block';
+
+                HM_UpdateTooltip(x, y, value);
+            }
+
+
+            // When the mouse leaves the container
+            hm_cont.onmouseout = function()
+            {
+                hm_tooltip.style.display = 'none';
+            }
 
         </script>
 
