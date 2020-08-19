@@ -5,15 +5,6 @@
         </title>
 
         <style>
-            body {
-                background-color: rgb(250, 249, 249);
-                font-family: Arial;
-            }
-
-            #title{
-                
-            }
-
             #heatmapContainerWrapper { 
                 width:50%; 
                 height:50%; 
@@ -87,6 +78,20 @@
                 <img id="gradient" src="" style="width:100%" />
             </div>
 
+        <!-- Heatmap Div -->
+        <div id="heatmapContainerWrapper">
+            <!--Heatmap-->
+            <div id="heatmapContainer">
+      
+            </div>
+            <!--Legend on heatmap-->
+            <div id="heatmapLegend">
+                <h2>COVID-19 Cases</h2>
+                <span id="min"></span>
+                <span id="max"></span>
+                <img id="gradient" src="" style="width:100%" />
+            </div>
+
             <!--Date Slider-->
             <div class="slidecontainer">
                 <input type="range" min="1" max="7" value="3" class="slider" id="heatmapRange">
@@ -141,7 +146,12 @@
             var legendCtx = legendCanvas.getContext('2d');
             var gradientCfg = {};
 
+            // Variable to hold ALL data from flask
+            var fdata;
+            var fkeys;
+
             // Get data from python and update the heatmap
+            GetData();
             HM_GetData();
 
             /*
@@ -167,62 +177,82 @@
 
 
             // Function on button press to get data from python
-            function HM_GetData()
+            function GetData()
             {
+
                 // Send an AJAX request to get loaded data data
                 $.ajax({
                     type : "POST",
                     // Route path
                     url : "/casedata",
                     dataType: "json",
+                    async: false,
                     //data: JSON.stringify('you can put in a variable in here to send data with the request'),
                     contentType: 'application/json;charset=UTF-8',
-                    success: function (allpoints) {
+                    success: function (pointdict) {
 
-                        // Use a date like 2020-03-31 for testing because it has max number of vals (30)
-                        
-                        console.log(allpoints["2020-03-31"])
-                        var points = allpoints["2020-03-31"]
-                        
-                        //var points = allpoints
-                        //console.log(allpoints)
-                        
-                        // Plot the data on the heatmap and refresh it
-                        
+                        // Set the data store to the given var
+                        fdata = pointdict
+                        fkeys = Object.keys(fdata)
 
-                        /*
-                            Need to adjust for longitude/latitude, equation will be as follows
-                            x = ((x - min_x) / diff_x) * width
-                            min_y = 42.3087965
-                            max_y = 48.47251
-                            diff_y = 6.1637135
-                            min_x = -84.3148358
-                            max_x = -74.73629779
-                            diff_x = 9.57853801
-
-                        */
-
-                        var min_y = 41
-                        var min_x = -85
-                        var diff_y = 6
-                        var diff_x = 11
-
-                        
-                        for (i = 0; i < points.length; i++)
-                        {
-                            points[i].x = Math.floor(((points[i].x - min_x) / diff_x) * hm_width);
-                            points[i].y = Math.floor(((points[i].y - min_y) / diff_y) * hm_height);
-                        };
-                        
-
-                        //console.log(points)
-
-                        // Update and display new vals
-                        HM_UpdateData(points);
                     }
+
                 });
             
             };
+
+            function HM_GetData(key = null)
+            {
+
+                if (key == null)
+                {
+                    // Keys are sorted by date, can just go from last to first
+                    // Get key based on slider pos
+                    key = fkeys[fkeys.length - (8 - hm_range.value)]
+
+                    //console.log(fdata["2020-03-31"])
+                    //var points = fdata["2020-03-31"]
+                }
+
+                var points = JSON.parse(JSON.stringify(fdata[key]));
+                
+                //var points = allpoints
+                //console.log(allpoints)
+                
+                // Plot the data on the heatmap and refresh it
+                
+
+                /*
+                    Need to adjust for longitude/latitude, equation will be as follows
+                    x = ((x - min_x) / diff_x) * width
+                    min_y = 42.3087965
+                    max_y = 48.47251
+                    diff_y = 6.1637135
+                    min_x = -84.3148358
+                    max_x = -74.73629779
+                    diff_x = 9.57853801
+
+                */
+
+                var min_y = 41
+                var min_x = -85
+                var diff_y = 6
+                var diff_x = 11
+
+                
+                for (i = 0; i < points.length; i++)
+                {
+                    points[i].x = Math.floor(((points[i].x - min_x) / diff_x) * hm_width);
+                    points[i].y = Math.floor(((points[i].y - min_y) / diff_y) * hm_height);
+                };
+                
+
+                
+
+                // Update and display new vals
+                HM_UpdateData(points);
+                    
+            }
 
             function HM_UpdateData(data)
             {
@@ -264,7 +294,9 @@
 
             // Function to change data used based on slidebar pos
             hm_range.oninput = function() {
-                console.log(this.value)
+                // Get new key
+                var newkey = fkeys[fkeys.length - (8 - hm_range.value)]
+                HM_GetData(newkey)
             }             
 
             // PAGE EVENTS / UTIL
