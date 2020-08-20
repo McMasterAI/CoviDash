@@ -1,23 +1,41 @@
-<html>
+<!doctype html>
+<html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <title>
-            Test Flask App
+            Mac AI COVID-19 Dashboard
         </title>
 
         <style>
-            #heatmapContainerWrapper { 
-                width:50%; 
-                height:50%; 
-                position:absolute; 
+            body {
+                background-color: rgb(250, 249, 249);
+                font-family: Arial;
             }
-            #heatmapContainer { width:100%; height: 90%; background-image: url(/js/ontario.png); background-size: 100% 100%;}
-            #heatmapLegend { background:white; position:absolute; top:0; right:0; padding:10px; }
+            
+            #heatmapContainer { 
+                width:100%;
+                height: 100%;
+                background-size: 100% 100%;
+                position:absolute;
+            }
+            
+            #heatmapLegend { 
+                position:absolute;
+                top:0;
+                right:0;
+                padding:10px;
+            }
+            
             #heatmapTooltip {display:none; position: absolute;}
             #min { float:left; }
             #max { float:right; }
 
             .slidecontainer {
             width: 100%; /* Width of the outside container */
+            bottom:0;
+            right:0;
             }
 
             /* The slider itself */
@@ -58,32 +76,59 @@
     </head>
 
     <body>
-        <h1>Test HTML Page</h1>
-        <h2>Passed directly from python: {{content}}</h2>
-        <p>Something something lorem ipsum</p>
 
-        <button id='demo'>Click Me!</button>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div id="title">
+                        <span>
+                            <h1>Mac AI COVID-19 Dashboard</h1><hr>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <!-- Heatmap Div -->
+                    <h2>COVID-19 Cases</h2>
+                    <!--Legend on heatmap-->
+                    <div id="heatmapLegend">
+                        <span id="min"></span>
+                        <span id="max"></span>
+                        <img id="gradient" src="" style="width:100%" />
+                    </div>
+                    <div id="heatmapContainerWrapper">
+                        <!--Heatmap-->
+                        <div id="heatmapContainer">
+                        </div>
+                        <img id="map" src="./js/ontario.png" style="width:100%" />
+        
+                    </div>
+                    
+                    <div class="slidecontainer">
+                        <input type="range" min="1" max="7" value="3" class="slider" id="heatmapRange">
+                    </div>
+                </div>
 
-        <!-- Heatmap Div -->
-        <div id="heatmapContainerWrapper">
-            <!--Heatmap-->
-            <div id="heatmapContainer">
-      
-            </div>
-            <!--Legend on heatmap-->
-            <div id="heatmapLegend">
-                <h2>COVID-19 Cases</h2>
-                <span id="min"></span>
-                <span id="max"></span>
-                <img id="gradient" src="" style="width:100%" />
-            </div>
 
-            <!--Date Slider-->
-            <div class="slidecontainer">
-                <input type="range" min="1" max="7" value="3" class="slider" id="heatmapRange">
+                <!--Place Rate of Cases Per Location Graph in here-->
+                <div class="col-6">
+
+                </div>
             </div>
+            <div class="row">
+                <!--Place Chart here-->
+                <div class="col-6">
+
+                </div>
+                <!--Place Filters in here-->
+                <div class="col-6">
+
+                </div>
+
+            </div>
+            
         </div>
-
         <!-- Heatmap Tooltip -->
         <span id="heatmapTooltip">Tooltip</span>
 
@@ -95,7 +140,7 @@
             // HEATMAP INIT
 
             // Get all heatmap form vals
-            var hm_cont = EID("heatmapContainer");
+            var hm_cont = EID("heatmapContainerWrapper");
             var hm_tooltip = EID("heatmapTooltip");
             var hm_range = EID("heatmapRange");
 
@@ -320,6 +365,9 @@
             }
 
         </script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     </body>
 </html>
