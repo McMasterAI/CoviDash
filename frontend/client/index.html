@@ -100,8 +100,9 @@
                     <div id="heatmapContainerWrapper">
                         <!--Heatmap-->
                         <div id="heatmapContainer">
+                        
+                            <img id="map" src="./js/ontario.png" style="width:100%" />
                         </div>
-                        <img id="map" src="./js/ontario.png" style="width:100%" />
         
                     </div>
                     
@@ -132,7 +133,7 @@
                     <h5>Time Range</h5>
                     <label for="start">Start Date:</label>
                     <input type="date" id="start" >
-                    <label for="start">End Date:</label>
+                    <label for="end">End Date:</label>
                     <input type="date" id="end">                    
                     <p><br /></p>
                     <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>                    
@@ -173,7 +174,7 @@
             // HEATMAP INIT
 
             // Get all heatmap form vals
-            var hm_cont = EID("heatmapContainerWrapper");
+            var hm_cont = EID("heatmapContainer");
             var hm_tooltip = EID("heatmapTooltip");
             var hm_range = EID("heatmapRange");
 
