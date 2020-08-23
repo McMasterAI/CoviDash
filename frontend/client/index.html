@@ -28,7 +28,7 @@
                 padding:10px;
             }
             
-            #heatmapTooltip {display:none; position: absolute;}
+            #heatmapTooltip {display:none; position: absolute;z-index: 1;}
             #min { float:left; }
             #max { float:right; }
 
@@ -76,7 +76,8 @@
     </head>
 
     <body>
-
+        <!-- Heatmap Tooltip -->
+        <span id="heatmapTooltip">Tooltip</span>
         <div class="container">
             <div class="row">
                 <div class="col">
@@ -164,8 +165,7 @@
             </div>
             
         </div>
-        <!-- Heatmap Tooltip -->
-        <span id="heatmapTooltip">Tooltip</span>
+
 
         <!-- In-file JS scripting -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
