@@ -122,8 +122,38 @@
 
                 </div>
                 <!--Place Filters in here-->
-                <div class="col-6">
+                <div class="col-3">
+                    <h3>Filters For Chart</h3>
+                    <h5>Location</h5>
+                    <select name="locations" id="locations">
+                    </select>
+                    <p><br /></p>
+                    <h5>Time Range</h5>
+                    <label for="start">Start Date:</label>
+                    <input type="date" id="start" >
+                    <label for="start">End Date:</label>
+                    <input type="date" id="end">                    
+                    <p><br /></p>
+                    <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>                    
+                    <input type="checkbox" id="showpredict" name="showpredict" value="predict">
 
+                </div>
+                <div class ="col-3">
+                    <h3><br /></h3>
+                    <h5>Sex</h5>
+                    <select name="sexes" id="sexes">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <p><br /></p>
+                    <h5>Age</h5>
+                    <select name="ages" id="ages">
+                        <option value="0-18">0-18</option>
+                        <option value="19-39">19-39</option>
+                        <option value="40-59">40-59</option>
+                        <option value="60-79">60-79</option>
+                        <option value="80">80 & up</option>                        
+                    </select>
                 </div>
 
             </div>
