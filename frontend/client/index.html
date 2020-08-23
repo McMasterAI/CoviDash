@@ -99,8 +99,10 @@
                     </div>
                     <div id="heatmapContainerWrapper">
                         <!--Heatmap-->
+                        <!--
                         <div id="heatmapContainer">
                         </div>
+                        -->
                         <img id="map" src="./js/ontario.png" style="width:100%" />
         
                     </div>
@@ -302,7 +304,8 @@
                 var min_x = -85
                 var diff_y = 6
                 var diff_x = 11
-
+                hm_width = hm_cont.offsetWidth;
+                hm_height = hm_cont.offsetHeight;
                 
                 for (i = 0; i < points.length; i++)
                 {
