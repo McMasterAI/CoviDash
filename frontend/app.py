@@ -57,7 +57,7 @@ def process_csv(save_location):
     # Pull relevant data from the CSV in tuple form
     formatted = []
     for i, v in enumerate(cr):
-        formatted.append((v[2], v[15], v[16]))
+        formatted.append((v[2], v[15], v[16], v[12]))
 
     # Create empty numpy array and fill with tuples from previous step
     np_arr = np.empty((len(formatted),), dtype=object)
@@ -76,6 +76,7 @@ def process_csv(save_location):
             "x": float(v[2]),
             "y": float(v[1]),
             "value": int(counts_elements[i]),
+            "loc": v[3]
         }
 
         if v[0] in complete_arr:
