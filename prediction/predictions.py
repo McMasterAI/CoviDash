@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import collections
 import multiprocessing
 from datetime import datetime, timedelta
 
@@ -96,31 +97,21 @@ def predict(model, num_pred, train_data_normalized, train_window):
     return test_inputs[-num_pred:]
 
 
-def convert_json(save_location, locations_dict, prediction_dates=[]):
-    new_dict = {}
-    for location, data in locations_dict.items():
+def convert_json(save_location, output_dict, prediction_dates=[]):
+    new_dict = collections.defaultdict(list)
+    for location, data in output_dict.items():
         for datenum, date in enumerate(data["dates"]):
             is_pred = True if date in prediction_dates else False
-            if date in new_dict:
-                new_dict[date].append(
-                    {
-                        "x": pp.coordinates[location]["x"],
-                        "y": pp.coordinates[location]["y"],
-                        "value": data["cases"][datenum],
-                        "loc": location,
-                        "prediction": is_pred,
-                    }
-                )
-            else:
-                new_dict[date] = [
-                    {
-                        "x": pp.coordinates[location]["x"],
-                        "y": pp.coordinates[location]["y"],
-                        "value": data["cases"][datenum],
-                        "loc": location,
-                        "prediction": is_pred,
-                    }
-                ]
+            new_dict[date].append(
+                {
+                    "x": pp.coordinates[location]["x"],
+                    "y": pp.coordinates[location]["y"],
+                    "value": data["cases"][datenum],
+                    "rolling_ave": data["rolling_ave"][datenum],
+                    "loc": location,
+                    "prediction": is_pred,
+                }
+            )
 
     with open(save_location + "covidlocpreds.json", "w+") as f:
         return json.dump(new_dict, f)
@@ -191,6 +182,7 @@ def main(
     train_new_model,
     train_window,
     num_forecast,
+    rolling_window,
     nproc,
 ):
     json_location = model_base_location
@@ -223,7 +215,7 @@ def main(
         # create dictionaries of data needed for each location
         locations_dict = pp.process_csv_locations(csv_location)
         date_list, _ = pp.process_csv(csv_location)
-        interpolated_dict = {}
+        output_dict = collections.defaultdict(dict)
 
         # train (or load) models for each location and get predictions
         _inputs = [
@@ -244,19 +236,24 @@ def main(
         for location, dates, cases, prediction_dates, _ in pool.imap_unordered(
             _train, _inputs, chunksize=1
         ):
-            interpolated_dict[location] = {}
-            interpolated_dict[location]["dates"] = dates
-            interpolated_dict[location]["cases"] = cases
+            output_dict[location]["dates"] = dates
+            output_dict[location]["cases"] = cases
+
+        # calculate rolling mean for each location
+        for location, data, in output_dict.items():
+            output_dict[location]["rolling_ave"] = pp.rolling_mean(
+                data["cases"], window=rolling_window
+            )
 
         # convert and save predictions to json
-        convert_json(json_location, interpolated_dict, prediction_dates)
+        convert_json(json_location, output_dict, prediction_dates)
 
         # plot actual cases and predictions
         plt.close()
-        for location in interpolated_dict:
+        for location in output_dict:
             plt.plot(
-                interpolated_dict[location]["dates"],
-                interpolated_dict[location]["cases"],
+                output_dict[location]["dates"],
+                output_dict[location]["cases"],
                 label=location,
             )
         plt.title("COVID-19 Cases Per Location")
@@ -281,6 +278,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--download_new_file", type=bool, default=False)
     parser.add_argument("--locations", type=bool, default=False)
+    parser.add_argument("--rolling_window", type=int, default=7)
     parser.add_argument("--train_new_model", type=bool, default=False)
     parser.add_argument("--train_window", type=int, default=7)
     parser.add_argument("--num_forecast", type=int, default=7)
