@@ -225,19 +225,19 @@ def rate_of_change(data, window=7, average=False):
 
     avg = lambda lst: (sum(lst) / len(lst)) if len(lst) > 0 else 0
 
-    diff = [0] * (window+1)
-    for i, _ in enumerate(data[:-(window+1)]):
-        prev_window = data[i:i+window]
+    diff = [0] * (window + 1)
+    for i, _ in enumerate(data[: -(window + 1)]):
+        prev_window = data[i : i + window]
         prev_window_avg = avg(prev_window)
 
         if prev_window_avg:
-            change = (data[i+window+1] / prev_window_avg) * 100
+            change = (data[i + window + 1] / prev_window_avg) * 100
         else:
             change = 0.0
         diff.append(change)
-        print(data[i+window+1], prev_window_avg, change)
 
     return diff
+
 
 def plot(unique_elements, counts_elements):
     """Simple plot for testing preprocessing.

@@ -23,6 +23,24 @@ class TestPreprocess(unittest.TestCase):
         self.assertEqual(len(mylist), len(means))
         self.assertTrue(np.allclose(means, expected))
 
+    def test_rate_of_change(self):
+        from preprocess import rate_of_change
+
+        window = 3
+        mylist = [1, 2, 3, 4, -5, 0]
+        expected = [
+            1 / 1,
+            (1 + 2) / 2,
+            (1 + 2 + 3) / 3,
+            (2 + 3 + 4) / 3,
+            (3 + 4 + -5) / 3,
+            (4 + -5 + 0) / 3,
+        ]
+        self.assertEqual(len(mylist), len(expected))  # sanity check
+
+        rocs = rate_of_change(mylist, window=window)
+        self.assertEqual(len(mylist), len(rocs))
+
 
 if __name__ == "__main__":
     unittest.main()
