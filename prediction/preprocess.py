@@ -204,6 +204,41 @@ def rolling_mean(data, window):
     return means
 
 
+def rate_of_change(data, window=7, average=False):
+    """Calculates the rate of change per iteration of a given input list.
+        Can specify whether the list is a rolling average or not.
+
+    Args:
+        data ([type]): List of numbers to compute the rate of change per index.
+        window ([type], optional): Window to use for calculating the rolling
+            average, if required. Defaults to 7.
+        average (bool, optional): If set to False, the data will have its
+            rolling average computed before calculating the rate of change.
+            Defaults to False.
+
+    Returns:
+        [list]: List of rates of change based on previous value
+    """
+    if not average:
+        # calculate rolling average
+        data = rolling_mean(data, window)
+
+    avg = lambda lst: (sum(lst) / len(lst)) if len(lst) > 0 else 0
+
+    diff = [0] * (window+1)
+    for i, _ in enumerate(data[:-(window+1)]):
+        prev_window = data[i:i+window]
+        prev_window_avg = avg(prev_window)
+
+        if prev_window_avg:
+            change = (data[i+window+1] / prev_window_avg) * 100
+        else:
+            change = 0.0
+        diff.append(change)
+        print(data[i+window+1], prev_window_avg, change)
+
+    return diff
+
 def plot(unique_elements, counts_elements):
     """Simple plot for testing preprocessing.
 
@@ -221,7 +256,7 @@ def main():
 
     download_csv(url, save_location)
 
-    each_location = True
+    each_location = False
     if not each_location:
         # perform for all of ontario
         unique, counts = process_csv(save_location)
@@ -232,17 +267,18 @@ def main():
         plt.plot(
             data_array[0], rolling_mean(data_array[1], window=7), label="means",
         )
+        plt.plot(data_array[0], rate_of_change(data_array[1], window=7, average=False))
         plt.title("rolling mean (window=7)")
         plt.legend()
         plt.show()
 
         print()
-        print(np.array(data_array[1]))
+        # print(np.array(data_array[1]))
         scaler = create_scaler()
         normalized_data = normalize_data(np.array(data_array[1]), scaler)
         train_window = 7
         inout_seq = create_tensors(normalized_data, train_window)
-        print(inout_seq)
+        # print(inout_seq)
     else:
         # perform for distinct locations
         locations_dict = process_csv_locations(save_location)
