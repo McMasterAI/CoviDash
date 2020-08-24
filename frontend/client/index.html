@@ -184,8 +184,8 @@
                 // only container is required, the rest will be defaults
                 container: hm_cont,
                 maxOpacity: .6,
-                radius: 50,
-                blur: 0.1,
+                radius: 30,
+                blur: 0.2,
                 // backgroundColor with alpha so you can see through it
                 backgroundColor: 'rgba(0, 0, 58, 0.00)',
                 // update the legend whenever there's an extrema change
@@ -214,33 +214,12 @@
 
             // Variable to hold ALL data from flask
             var fdata;
+            var fdataMax;
             var fkeys;
 
             // Get data from python and update the heatmap
             GetData();
-            HM_GetData();
-
-            /*
-            // now generate some random data
-            var points = [];
-            var max = 100;
-            var len = 1000;
-
-            while (len--) {
-                var val = Math.floor(Math.random()*100);
-                var point = {
-                    x: Math.floor(Math.random()*width),
-                    y: Math.floor(Math.random()*height),
-                    value: val
-                };
-                points.push(point);
-            }
-            */
-
-            // if you have a set of datapoints always use setData instead of addData
-            // for data initialization
-            //HM_UpdateData([])          
-
+            HM_GetData();    
 
             // Function on button press to get data from python
             function GetData()
@@ -291,26 +270,25 @@
                 /*
                     Need to adjust for longitude/latitude, equation will be as follows
                     x = ((x - min_x) / diff_x) * width
-                    min_y = 42.3087965
-                    max_y = 48.47251
-                    diff_y = 6.1637135
-                    min_x = -84.3148358
-                    max_x = -74.73629779
-                    diff_x = 9.57853801
-
                 */
 
-                var min_y = 41
-                var min_x = -85
-                var diff_y = 6
-                var diff_x = 11
+                // Moves points up/down
+                var min_y = 41.8
+                // Moves points left/right
+                var min_x = -96
+                // Spreads points vertically
+                var diff_y = 9
+                // Spreads points horizontally
+                var diff_x = 22
+                
+                //make sure points are in the right position on the screen
                 hm_width = hm_cont.offsetWidth;
                 hm_height = hm_cont.offsetHeight;
                 
                 for (i = 0; i < points.length; i++)
                 {
                     points[i].x = Math.floor(((points[i].x - min_x) / diff_x) * hm_width);
-                    points[i].y = Math.floor(((points[i].y - min_y) / diff_y) * hm_height);
+                    points[i].y = hm_height - Math.floor(((points[i].y - min_y) / diff_y) * hm_height);
                 };
                 
 
@@ -334,6 +312,8 @@
             {
                 // the onExtremaChange callback gives us min, max, and the gradientConfig
                 // so we can update the legend
+
+                // Get the min/max of the full dataset
                 EID('min').innerHTML = data.min;
                 EID('max').innerHTML = data.max;
                 // regenerate gradient image
@@ -374,12 +354,10 @@
                 return document.getElementById(id);
             };
 
-            // Press button should refresh data
-            document.getElementById("demo").addEventListener("click", function(){HM_GetData()});
-
             // When mousing over the container
             hm_cont.onmousemove = function(ev)
             {
+
                 var x = ev.layerX;
                 var y = ev.layerY;
                 // Get value from heatmap pos
