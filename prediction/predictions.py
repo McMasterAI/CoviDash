@@ -208,8 +208,14 @@ def main(
         plt.ylabel("Confirmed Cases")
         plt.grid(True)
         plt.autoscale(axis="x", tight=True)
-        plt.plot(dates, cases)
-        plt.plot(pred_dates, pred_cases)
+        plt.plot(dates, cases, label="actual")
+        plt.plot(pred_dates, pred_cases, label="predictions")
+        plt.plot(
+            np.append(dates, pred_dates),
+            pp.rolling_mean(np.append(cases, pred_cases), window=7),
+            label="mean",
+        )
+        plt.legend()
         plt.show()
     else:
         # create dictionaries of data needed for each location
