@@ -108,6 +108,7 @@ def convert_json(save_location, output_dict, prediction_dates=[]):
                     "y": pp.coordinates[location]["y"],
                     "value": data["cases"][datenum],
                     "rolling_ave": data["rolling_ave"][datenum],
+                    "rate_of_change": data["rate_of_change"][datenum],
                     "loc": location,
                     "prediction": is_pred,
                 }
@@ -183,6 +184,8 @@ def main(
     train_window,
     num_forecast,
     rolling_window,
+    roc_window,
+    roc_average,
     nproc,
 ):
     json_location = model_base_location
@@ -245,10 +248,13 @@ def main(
             output_dict[location]["dates"] = dates
             output_dict[location]["cases"] = cases
 
-        # calculate rolling mean for each location
-        for location, data, in output_dict.items():
+        # calculate rolling mean and rate of change for each location
+        for location, data in output_dict.items():
             output_dict[location]["rolling_ave"] = pp.rolling_mean(
                 data["cases"], window=rolling_window
+            )
+            output_dict[location]["rate_of_change"] = pp.rate_of_change(
+                data["cases"], window=roc_window, average=roc_average
             )
 
         # convert and save predictions to json
@@ -284,10 +290,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--download_new_file", type=bool, default=False)
     parser.add_argument("--locations", type=bool, default=False)
-    parser.add_argument("--rolling_window", type=int, default=7)
     parser.add_argument("--train_new_model", type=bool, default=False)
     parser.add_argument("--train_window", type=int, default=7)
     parser.add_argument("--num_forecast", type=int, default=7)
+    parser.add_argument("--rolling_window", type=int, default=7)
+    parser.add_argument("--roc_window", type=int, default=7)
+    parser.add_argument("--roc_average", type=bool, default=False)
     parser.add_argument("--nproc", type=int, default=multiprocessing.cpu_count() - 2)
     args = parser.parse_args()
     main(**args.__dict__)
