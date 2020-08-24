@@ -28,7 +28,7 @@
                 padding:10px;
             }
             
-            #heatmapTooltip {display:none; position: absolute;}
+            #heatmapTooltip {display:none; position: absolute;z-index: 1;}
             #min { float:left; }
             #max { float:right; }
 
@@ -76,7 +76,8 @@
     </head>
 
     <body>
-
+        <!-- Heatmap Tooltip -->
+        <span id="heatmapTooltip">Tooltip</span>
         <div class="container">
             <div class="row">
                 <div class="col">
@@ -99,8 +100,10 @@
                     </div>
                     <div id="heatmapContainerWrapper">
                         <!--Heatmap-->
+                        <!--
                         <div id="heatmapContainer">
                         </div>
+                        -->
                         <img id="map" src="./js/ontario.png" style="width:100%" />
         
                     </div>
@@ -122,15 +125,47 @@
 
                 </div>
                 <!--Place Filters in here-->
-                <div class="col-6">
+                <div class="col-3">
+                    <h3>Filters</h3>
+                    <h5>Location</h5>
+                    <select name="locations" id="locations">
+                        <option value="All">--</option>
+                    </select>
+                    <p><br /></p>
+                    <h5>Time Range</h5>
+                    <label for="start">Start Date:</label>
+                    <input type="date" id="start" >
+                    <label for="end">End Date:</label>
+                    <input type="date" id="end">                    
+                    <p><br /></p>
+                    <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>                    
+                    <input type="checkbox" id="showpredict" name="showpredict" value="predict">
 
+                </div>
+                <div class ="col-3">
+                    <h3><br /></h3>
+                    <h5>Sex</h5>
+                    <select name="sexes" id="sexes">
+                        <option value="N/A">--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <p><br /></p>
+                    <h5>Age</h5>
+                    <select name="ages" id="ages">
+                        <option value="N/A">--</option>
+                        <option value="0-18">0-18</option>
+                        <option value="19-39">19-39</option>
+                        <option value="40-59">40-59</option>
+                        <option value="60-79">60-79</option>
+                        <option value="80">80 & up</option>                        
+                    </select>
                 </div>
 
             </div>
             
         </div>
-        <!-- Heatmap Tooltip -->
-        <span id="heatmapTooltip">Tooltip</span>
+
 
         <!-- In-file JS scripting -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -245,7 +280,10 @@
                 var diff_y = 9
                 // Spreads points horizontally
                 var diff_x = 22
-
+                
+                //make sure points are in the right position on the screen
+                hm_width = hm_cont.offsetWidth;
+                hm_height = hm_cont.offsetHeight;
                 
                 for (i = 0; i < points.length; i++)
                 {
