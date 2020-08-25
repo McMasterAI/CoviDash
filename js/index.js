@@ -197,6 +197,7 @@ hm_range.oninput = function () {
     // Get new key
     var newkey = fkeys[hm_range.value]
     HM_GetData(newkey)
+    updateBarChart()
 }
 
 // PAGE EVENTS / UTIL
@@ -318,8 +319,48 @@ function updateLineChart() {
         showlegend: true,
     };
 
-    Plotly.newPlot('tester', data, layout, { scrollZoom: true });
+    Plotly.newPlot('linechart', data, layout, { scrollZoom: true });
 }
 updateLineChart()
+
+
+function updateBarChart() {
+    var _date = Number(hm_range.value)
+
+    _cases = []
+    _aves = []
+    _roc = []
+    for (i in locations) {
+        loc = locations[i]
+        _cases.push(cases[loc][_date])
+        _aves.push(rolling[loc][_date])
+        _roc.push(rateofchange[loc][_date])
+    }
+    var trace1 = {
+        x: locations,
+        y: _cases,
+        type: 'bar',
+        name: 'number of cases'
+    };
+    var trace2 = {
+        x: locations,
+        y: _aves,
+        type: 'bar',
+        name: 'rolling average'
+    };
+    var trace3 = {
+        x: locations,
+        y: _roc,
+        type: 'bar',
+        name: 'rate of change',
+        visible: 'legendonly'
+    };
+
+    var traces = [trace1, trace2, trace3];
+    var layout = { barmode: 'group' };
+
+    Plotly.newPlot('barchart', traces, layout);
+}
+updateBarChart()
 
 locations_elem.onchange = updateLineChart
