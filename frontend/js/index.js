@@ -11,7 +11,7 @@ var heatmapInstance = h337.create({
     // only container is required, the rest will be defaults
     container: hm_cont,
     maxOpacity: .6,
-    radius: 30,
+    radius: 16,
     blur: 0.2,
     // backgroundColor with alpha so you can see through it
     backgroundColor: 'rgba(0, 0, 58, 0.00)',
@@ -223,20 +223,103 @@ hm_cont.onmousemove = function (ev) {
 }
 
 // When start date is edited
-filter_start.onchange = function (ev) {
-    hm_start = filter_start.value;
-    HM_UpdateRange(hm_start, hm_end)
-    HM_UpdateData()
-}
+// filter_start.onchange = function (ev) {
+//     hm_start = filter_start.value;
+//     HM_UpdateRange(hm_start, hm_end)
+//     HM_UpdateData()
+// }
 
-filter_end.onchange = function (ev) {
-    hm_end = filter_end.value;
-    HM_UpdateRange(hm_start, hm_end)
-    HM_UpdateData()
-}
+// filter_end.onchange = function (ev) {
+//     hm_end = filter_end.value;
+//     HM_UpdateRange(hm_start, hm_end)
+//     HM_UpdateData()
+// }
 
 
 // When the mouse leaves the container
 hm_cont.onmouseout = function () {
     hm_tooltip.style.display = 'none';
 }
+
+
+
+
+////////////////////////////////////////
+
+
+var cases = {}
+cases["All"] = []
+var rolling = {}
+rolling["All"] = []
+var rateofchange = {}
+rateofchange["All"] = []
+for (var date in fdata) {
+    cases["All"].push(0)
+    rolling["All"].push(0)
+    rateofchange["All"].push(0)
+
+    for (var i in fdata[date]) {
+        var city = fdata[date][i]
+        if (!(city["loc"] in cases)) {
+            cases[city["loc"]] = []
+            rolling[city["loc"]] = []
+            rateofchange[city["loc"]] = []
+        }
+        cases[city["loc"]].push(city["value"])
+        rolling[city["loc"]].push(city["rolling_ave"])
+        rateofchange[city["loc"]].push(city["rate_of_change"])
+
+        cases["All"][cases["All"].length - 1] += city["value"]
+        rolling["All"][rolling["All"].length - 1] += city["rolling_ave"]
+        rateofchange["All"][rateofchange["All"].length - 1] += city["rate_of_change"]
+    }
+}
+var locations = Object.keys(cases);
+locations.sort();
+
+for (i in locations) {
+    var loc = locations[i];
+    $("select#locations").append($("<option>")
+        .val(loc)
+        .html(loc)
+    )
+}
+
+var locations_elem = document.getElementById("locations");
+locations_elem.options[locations_elem.selectedIndex].value = "All";
+locations_elem.options[locations_elem.selectedIndex].text = "All";
+
+function updateLineChart() {
+    var place = locations_elem.options[locations_elem.selectedIndex].value;
+    var trace1 = {
+        x: fkeys,
+        y: cases[place],
+        type: 'scatter',
+        name: 'number of cases'
+    };
+    var trace2 = {
+        x: fkeys,
+        y: rolling[place],
+        type: 'scatter',
+        name: 'rolling average'
+    };
+    var trace3 = {
+        x: fkeys,
+        y: rateofchange[place],
+        type: 'scatter',
+        name: 'rate of change',
+        visible: 'legendonly'
+    };
+
+    var data = [trace1, trace2, trace3];
+
+    var layout = {
+        title: 'Cases Time Series',
+        showlegend: true,
+    };
+
+    Plotly.newPlot('tester', data, layout, { scrollZoom: true });
+}
+updateLineChart()
+
+locations_elem.onchange = updateLineChart

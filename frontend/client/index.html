@@ -158,25 +158,23 @@
         </div>
         <div class="row">
             <!--Place Chart here-->
-            <div class="col-6">
+            <div class="col-6" id="tester" style="height:40vh;width:40vw"></div>
 
-            </div>
             <!--Place Filters in here-->
             <div class="col-6">
                 <h3>Filter Results By:</h3>
                 <h5>Location</h5>
                 <select name="locations" id="locations">
-                    <option value="All">--</option>
                 </select>
-                <p><br /></p>
-                <h5>Time Range</h5>
-                <label for="start">Start Date:</label>
+                <!-- <p><br /></p> -->
+                <!-- <h5>Time Range</h5> -->
+                <!-- <label for="start">Start Date:</label>
                 <input type="date" id="start">
                 <label for="end">End Date:</label>
-                <input type="date" id="end">
-                <p><br /></p>
+                <input type="date" id="end"> -->
+                <!-- <p><br /></p>
                 <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>
-                <input type="checkbox" id="showpredict" name="showpredict" value="predict">
+                <input type="checkbox" id="showpredict" name="showpredict" value="predict"> -->
 
             </div>
             <!--<div class="col-3">
@@ -207,6 +205,7 @@
     <!-- In-file JS scripting -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='node_modules/heatmap.js/build/heatmap.js')}}"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="{{ url_for('static', filename='index.js')}}"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
