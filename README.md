@@ -1,4 +1,4 @@
-# covid19-pytorch
+# CoviDash
 
 ## instructions
 **install**
