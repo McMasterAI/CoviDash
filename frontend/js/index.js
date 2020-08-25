@@ -3,6 +3,9 @@ var hm_cont = EID("heatmapContainerWrapper");
 var hm_tooltip = EID("heatmapTooltip");
 var hm_range = EID("heatmapRange");
 
+var filter_start = EID("start");
+var filter_end = EID("end");
+
 // minimal heatmap instance configuration
 var heatmapInstance = h337.create({
     // only container is required, the rest will be defaults
@@ -40,9 +43,12 @@ var gradientCfg = {};
 var fdata;
 var fdataMax;
 var fkeys;
+var hm_start;
+var hm_end;
 
 // Get data from python and update the heatmap
 GetData();
+HM_UpdateRange();
 HM_GetData();
 
 // Function on button press to get data from python
@@ -74,11 +80,14 @@ function HM_GetData(key = null) {
     if (key == null) {
         // Keys are sorted by date, can just go from last to first
         // Get key based on slider pos
-        key = fkeys[fkeys.length - (8 - hm_range.value)]
+        key = fkeys[hm_range.value]
 
         //console.log(fdata["2020-03-31"])
         //var points = fdata["2020-03-31"]
     }
+
+    // Set the current date to the key
+    EID('date').innerHTML = key
 
     var points = JSON.parse(JSON.stringify(fdata[key]));
 
@@ -119,6 +128,33 @@ function HM_GetData(key = null) {
 
 }
 
+function HM_UpdateRange(startdate = null, enddate = null) {
+
+    // Get startdate if null or does not exist
+    if (startdate == null || !(fkeys.includes(startdate))) {
+
+        startdate = fkeys[0]
+
+    }
+
+    // Get enddate if null or does not exist
+    if (enddate == null || !(fkeys.includes(enddate))) {
+
+        enddate = fkeys[fkeys.length - 1]
+
+    }
+
+    hm_start = startdate
+    hm_end = enddate
+
+
+    // Set range to support this new date range
+    hm_range.max = fkeys.indexOf(hm_end)
+    hm_range.min = fkeys.indexOf(hm_start)
+
+
+}
+
 function HM_UpdateData(data) {
     // With the given list of points, update the max and data vals
     hm_data.max = Math.max.apply(Math, data.map(function (o) { return o.value; }))
@@ -133,7 +169,7 @@ function HM_UpdateLegend(data) {
 
     // Get the min/max of the full dataset
     EID('min').innerHTML = data.min;
-    EID('max').innerHTML = data.max;
+    EID('max').innerHTML = Math.floor(data.max);
     // regenerate gradient image
     if (data.gradient != gradientCfg) {
         gradientCfg = data.gradient;
@@ -151,7 +187,7 @@ function HM_UpdateLegend(data) {
 // Function to update tooltip value and position
 function HM_UpdateTooltip(x, y, value) {
     // + 15 for distance to cursor
-    var translation = 'translate(' + (x + 15) + 'px, ' + (y + 15) + 'px)';
+    var translation = 'translate(' + (x + 100) + 'px, ' + (y + 100) + 'px)';
     hm_tooltip.style.webkitTransform = translation;
     hm_tooltip.innerHTML = value;
 }
@@ -159,7 +195,7 @@ function HM_UpdateTooltip(x, y, value) {
 // Function to change data used based on slidebar pos
 hm_range.oninput = function () {
     // Get new key
-    var newkey = fkeys[fkeys.length - (8 - hm_range.value)]
+    var newkey = fkeys[hm_range.value]
     HM_GetData(newkey)
 }
 
@@ -184,6 +220,19 @@ hm_cont.onmousemove = function (ev) {
     hm_tooltip.style.display = 'block';
 
     HM_UpdateTooltip(x, y, value);
+}
+
+// When start date is edited
+filter_start.onchange = function (ev) {
+    hm_start = filter_start.value;
+    HM_UpdateRange(hm_start, hm_end)
+    HM_UpdateData()
+}
+
+filter_end.onchange = function (ev) {
+    hm_end = filter_end.value;
+    HM_UpdateRange(hm_start, hm_end)
+    HM_UpdateData()
 }
 
 

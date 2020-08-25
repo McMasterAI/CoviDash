@@ -36,7 +36,12 @@
             z-index: 1;
         }
 
+        #date {
+            display: block;
+        }
+
         #min {
+            display: block;
             float: left;
         }
 
@@ -125,6 +130,7 @@
                 <h2>COVID-19 Cases</h2>
                 <!--Legend on heatmap-->
                 <div id="heatmapLegend">
+                    <span id="date"></span>
                     <span id="min"></span>
                     <span id="max"></span>
                     <img id="gradient" src="" style="width:100%" />
@@ -140,7 +146,7 @@
                 </div>
 
                 <div class="slidecontainer">
-                    <input type="range" min="1" max="7" value="3" class="slider" id="heatmapRange">
+                    <input type="range" min="0" max="6" value="3" class="slider" id="heatmapRange">
                 </div>
             </div>
 
