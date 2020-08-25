@@ -357,7 +357,7 @@ function updateBarChart() {
     };
 
     var traces = [trace1, trace2, trace3];
-    var layout = { barmode: 'group' };
+    var layout = { barmode: 'group', title: "Cases by City" };
 
     Plotly.newPlot('barchart', traces, layout);
 }
