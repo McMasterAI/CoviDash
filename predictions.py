@@ -106,9 +106,9 @@ def convert_json(save_location, output_dict, prediction_dates=[]):
                 {
                     "x": pp.coordinates[location]["x"],
                     "y": pp.coordinates[location]["y"],
-                    "value": data["cases"][datenum],
-                    "rolling_ave": data["rolling_ave"][datenum],
-                    "rate_of_change": data["rate_of_change"][datenum],
+                    "value": max(0, data["cases"][datenum]),
+                    "rolling_ave": max(0, data["rolling_ave"][datenum]),
+                    "rate_of_change": max(0, data["rate_of_change"][datenum]),
                     "loc": location,
                     "prediction": is_pred,
                 }
