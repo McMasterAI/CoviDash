@@ -12,7 +12,7 @@
 
     <style>
         body {
-            background-color: rgb(250, 249, 249);
+            /*background-color: rgb(250, 249, 249);*/
             font-family: Arial;
         }
 
@@ -115,19 +115,24 @@
     <span id="heatmapTooltip">Tooltip</span>
     <div class="container">
         <div class="row">
+            <div class="col-2">
+                <img id="heh" src="./js/logo.png" style="width:100%" />
+            </div>
             <div class="col">
                 <div id="title">
                     <span>
-                        <h1>Mac AI COVID-19 Dashboard</h1>
-                        <hr>
+                        <h1>COVID-19 Dashboard</h1>
+                        
                     </span>
                 </div>
             </div>
+            
         </div>
+        <hr>
         <div class="row">
-            <div class="col-6">
+            <div class="col-6 text-center">
                 <!-- Heatmap Div -->
-                <h2>COVID-19 Cases</h2>
+                <h5>Heatmap of Cases</h5>
                 <!--Legend on heatmap-->
                 <div id="heatmapLegend">
                     <span id="date"></span>
@@ -151,25 +156,30 @@
             </div>
 
             <!--Place Chart here-->
-            <div class="col-6" id="linechart" style="height:40vh;width:40vw"></div>
+            <div class="col-6 text-center" >
+                <h5>Cases Time Series</h5>
+                <div id="linechart" style="height:40vh;width:40vw"></div>
+            
+                
+                    Select Time Series Location
+                    <select name="locations" id="locations">
+                    </select>
+                    <!-- <p><br /></p> -->
+                    <!-- <h5>Time Range</h5> -->
+                    <!-- <label for="start">Start Date:</label>
+                    <input type="date" id="start">
+                    <label for="end">End Date:</label>
+                    <input type="date" id="end"> -->
+                    <!-- <p><br /></p>
+                    <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>
+                    <input type="checkbox" id="showpredict" name="showpredict" value="predict"> -->
+    
+            
+            </div>
 
             <!--Place Filters in here-->
-            <div class="col-6"></div>
-            <div class="col-6">
-                <h5>Pick Time Series Location</h5>
-                <select name="locations" id="locations">
-                </select>
-                <!-- <p><br /></p> -->
-                <!-- <h5>Time Range</h5> -->
-                <!-- <label for="start">Start Date:</label>
-                <input type="date" id="start">
-                <label for="end">End Date:</label>
-                <input type="date" id="end"> -->
-                <!-- <p><br /></p>
-                <label for="showpredict" style="font-size: 1.25rem;"> Include Case Forecasting</label>
-                <input type="checkbox" id="showpredict" name="showpredict" value="predict"> -->
+            
 
-            </div>
             <!--<div class="col-3">
                 <h3><br /></h3>
                 <h5>Sex</h5>
@@ -194,7 +204,13 @@
             <!--Place Rate of Cases Per Location Graph in here-->
             <div class="col" id="barchart" style="height:40vh;width:40vw"></div>
         </div>
-
+        <div class="row">
+            <div class="col">
+                <div style="height: 100px">
+                </div>
+                
+            </div>
+        </div>
     </div>
 
 

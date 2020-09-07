@@ -315,7 +315,7 @@ function updateLineChart() {
     var data = [trace1, trace2, trace3];
 
     var layout = {
-        title: 'Cases Time Series',
+        /*title: 'Cases Time Series',*/
         showlegend: true,
     };
 
